@@ -1,0 +1,55 @@
+//COLORS
+$grey_100: #7780a1;
+$grey_50: #bbc0d0;
+$grey_20: #e2e2ed;
+$grey_10: #f2f3f6;
+$textBlack: #060714;
+$PurpleDark_100: #2a27c9;
+
+//FONTS
+$sora: 'Sora', sans-serif;
+$inter: 'Inter', sans-serif;
+
+@mixin linearBtn {
+  padding: 14px 24px;
+  border-radius: 12px;
+  border: none;
+  border: 2px solid $grey_100;
+  background-color: rgba(255, 255, 255, 0);
+
+  font-family: $sora;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.2px;
+  color: $grey_100;
+  transition: 0.2s;
+
+  cursor: pointer;
+  &:hover {
+    background-color: $grey_100;
+    color: #fff;
+    box-shadow: inset -4px -4px 4px rgba(0, 0, 0, 0.1),
+      inset 4px 4px 4px rgba(158, 158, 158, 0.1);
+    border: 2px solid rgba(158, 158, 158, 0);
+  }
+}
+
+@mixin solidBtn {
+  padding: 16px 24px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(104.42deg, #4745d0 0%, #2a27c9 60.23%);
+  box-shadow: inset -4px -4px 4px rgba(0, 0, 0, 0.1),
+    inset 4px 4px 4px rgba(255, 255, 255, 0.1);
+
+  font-family: $sora;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.2px;
+  color: #fff;
+  transition: 0.2s;
+  cursor: pointer;
+  &:hover {
+    opacity: 0.85;
+  }
+}
