@@ -617,7 +617,10 @@ export default {
   },
   mounted() {
     let swiper = document.querySelector('.swiper-one').swiper
-    swiper.init()
+    console.log(44344)
+    setTimeout(() => {
+      swiper.init()
+    }, 7000)
     setTimeout(() => {
       swiper.slideNext()
     }, 3000)
