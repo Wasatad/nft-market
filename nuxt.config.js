@@ -29,7 +29,7 @@ export default {
   css: [{ src: 'swiper/css/swiper.css' }, { src: 'aos/dist/aos.css' }],
 
   plugins: [
-    { src: '~/plugins/vue-swiper.js', mode: 'client' },
+    { src: '~/plugins/vue-swiper.js', mode: 'client', ssr: false },
     { src: '~/plugins/aos', mode: 'client', ssr: false },
     { src: '~/plugins/vue-kinesis.js', mode: 'client' },
     { src: '~/plugins/vue-number.js', mode: 'client' },
