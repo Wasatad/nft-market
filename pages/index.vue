@@ -176,7 +176,7 @@
         <div class="swiper-one-button-next">
           <img src="@/assets/img/arrow-next.svg" alt="" />
         </div>
-        <div v-swiper:mySwiperOne="swiperOneOption">
+        <div class="swiper-one" v-swiper:mySwiperOne="swiperOneOption">
           <div class="swiper-wrapper">
             <div class="swiper-slide" v-for="nft in latestNFTs" :key="nft.id">
               <nft-big
@@ -544,14 +544,7 @@ export default {
     return {
       emitNextSlide: false,
       swiperOneOption: {
-        observer: true,
-        autoplay: {
-          delay: 1,
-          disableOnInteraction: false,
-        },
-        loop: true,
-        loopedSlides: 7,
-        speed: 2000,
+        loop: false,
         slidesPerView: 'auto',
         centeredSlides: true,
         centeredSlidesBounds: true,
@@ -623,6 +616,11 @@ export default {
     },
   },
   mounted() {
+    let swiper = document.querySelector('.swiper-one').swiper
+    swiper.init()
+    setTimeout(() => {
+      swiper.slideNext()
+    }, 3000)
     let getStartedBlock = document.querySelector('.get-started')
     let getStartedBtn = document.querySelector('.get-started-btn')
     let hand = document.querySelector('.hand')
