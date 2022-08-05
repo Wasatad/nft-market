@@ -1,9 +1,9 @@
 export default {
   ssr: true,
   target: 'server',
-  // Global page headers: https://go.nuxtjs.dev/config-head
+
   head: {
-    title: 'nft-market',
+    title: 'NFT Market',
     htmlAttrs: {
       lang: 'en',
     },
@@ -26,11 +26,8 @@ export default {
     ],
   },
 
-  // Global CSS: https://go.nuxtjs.dev/config-css
-  // css: ['@assets/styles/scss/variables.scss'],
   css: [{ src: 'swiper/css/swiper.css' }, { src: 'aos/dist/aos.css' }],
 
-  // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
     { src: '~/plugins/vue-swiper.js', mode: 'client' },
     { src: '~/plugins/aos', mode: 'client', ssr: false },
@@ -38,25 +35,15 @@ export default {
     { src: '~/plugins/vue-number.js', mode: 'client' },
   ],
 
-  // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
 
-  // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
-  buildModules: [
-    // https://go.nuxtjs.dev/eslint
-    '@nuxtjs/style-resources',
-  ],
+  buildModules: ['@nuxtjs/style-resources'],
 
   styleResources: {
     scss: ['@assets/styles/scss/*.scss'],
   },
 
-  // Modules: https://go.nuxtjs.dev/config-modules
   modules: ['@nuxtjs/axios', 'cookie-universal-nuxt'],
-  // axios: {
-  //   baseURL: 'http://localhost:3000',
-  // },
 
-  // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {},
 }
