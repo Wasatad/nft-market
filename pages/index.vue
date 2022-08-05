@@ -669,6 +669,8 @@ export default {
 }
 </script>
 <style scoped lang="scss">
+@import 'node_modules/swiper/css/swiper.min.css';
+
 .swiper-slide {
   width: auto;
 }
