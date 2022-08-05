@@ -537,13 +537,14 @@
 <script>
 import { LoremIpsum } from 'lorem-ipsum'
 const lorem = new LoremIpsum()
-import { mapState, mapActions, mapMutations, mapGetters } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 export default {
   data() {
     return {
       emitNextSlide: false,
       swiperOneOption: {
+        observer: true,
         loop: false,
         slidesPerView: 'auto',
         centeredSlides: true,
@@ -555,6 +556,7 @@ export default {
         },
       },
       swiperTwoOption: {
+        observer: true,
         loop: false,
         slidesPerView: 'auto',
         centeredSlides: false,
@@ -669,8 +671,6 @@ export default {
 }
 </script>
 <style scoped lang="scss">
-@import 'node_modules/swiper/css/swiper.min.css';
-
 .swiper-slide {
   width: auto;
 }
