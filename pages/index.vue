@@ -544,6 +544,8 @@ export default {
     return {
       emitNextSlide: false,
       swiperOneOption: {
+        observer: true,
+        preloadImages: false,
         loop: false,
         slidesPerView: 'auto',
         centeredSlides: true,
@@ -616,14 +618,14 @@ export default {
     },
   },
   mounted() {
-    let swiper = document.querySelector('.swiper-one').swiper
-    console.log(44344)
-    setTimeout(() => {
-      swiper.init()
-    }, 7000)
-    setTimeout(() => {
-      swiper.slideNext()
-    }, 3000)
+    // let swiper = document.querySelector('.swiper-one').swiper
+    // console.log(44344)
+    // setTimeout(() => {
+    //   swiper.init()
+    // }, 7000)
+    // setTimeout(() => {
+    //   swiper.slideNext()
+    // }, 3000)
     let getStartedBlock = document.querySelector('.get-started')
     let getStartedBtn = document.querySelector('.get-started-btn')
     let hand = document.querySelector('.hand')
