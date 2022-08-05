@@ -1,12 +1,16 @@
 <template>
   <div class="slider-wrapper">
     <div class="nft-image-container">
-      <img class="nft-image" src="@/assets/img/nft_image.jpg" alt="" />
-      <!-- <img class="nft-image" :src="nft.image" alt="" /> -->
+      <img
+        @click="goToDetails(nft)"
+        class="nft-image"
+        :src="nft.image"
+        alt=""
+      />
     </div>
     <div class="info">
       <div class="item-head">
-        <div class="nft-name">{{ nft.name }}</div>
+        <div @click="goToDetails(nft)" class="nft-name">{{ nft.name }}</div>
       </div>
       <div class="item-bottom">
         <div class="timer">
@@ -20,7 +24,7 @@
         <div class="likes">
           <div class="peoples">
             <div class="people-qty">
-              {{ nft.biddingUsers }} people are bidding
+              {{ nft.bidsHistory.length }} people are bidding
             </div>
           </div>
           <div
@@ -68,15 +72,31 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['updateItem']),
-    ...mapMutations(['toggleFav', 'timer', 'activateCountingState']),
+    ...mapMutations(['toggleFav']),
+    ...mapActions(['setCurrentItem']),
+    goToDetails(nft) {
+      this.setCurrentItem(nft)
+      this.$nuxt.$options.router.push('/details')
+    },
+    timer(id, category) {
+      this.$store.commit('timer', {
+        id: id,
+        category: category,
+      })
+    },
+    updateNFT(id, category) {
+      this.$store.dispatch('updateNFT', {
+        id: id,
+        category: category,
+      })
+    },
     async updateCounter() {
-      await this.updateItem(this.nft)
+      await this.updateNFT(this.nft.id, 'latestNFTs')
       this.timestamp = this.nft.expireTimestamp
 
       let that = this
       setTimeout(function go() {
-        that.timer(that.nft.id)
+        that.timer(that.nft.id, 'latestNFTs')
         if (that.nft.timeTillTheEnd >= 1000) {
           setTimeout(go, 1000)
         } else {
@@ -87,18 +107,22 @@ export default {
     like() {
       this.toggleFav(this.nft.id)
     },
+    activateCounting(id, category) {
+      this.$store.commit('activateCounting', {
+        id: id,
+        category: category,
+      })
+    },
   },
   mounted() {
     let that = this
-    // this.timestamp = this.nft.expireTimestamp
     if (this.nft.timeTillTheEnd) {
       if (this.nft.countingInAction) {
         return
       } else {
-        that.activateCountingState(that.nft.id)
+        that.activateCounting(that.nft.id, 'latestNFTs')
         setTimeout(function go() {
-          // that.timestamp -= 1000
-          that.timer(that.nft.id)
+          that.timer(that.nft.id, 'latestNFTs')
           if (that.nft.timeTillTheEnd >= 1000) {
             setTimeout(go, 1000)
           } else {
@@ -107,9 +131,9 @@ export default {
         }, 1000)
       }
     } else {
-      that.activateCountingState(that.nft.id)
+      that.activateCounting(that.nft.id, 'latestNFTs')
       setTimeout(function go() {
-        that.timer(that.nft.id)
+        that.timer(that.nft.id, 'latestNFTs')
         if (that.nft.timeTillTheEnd >= 1000) {
           setTimeout(go, 1000)
         } else {
@@ -124,14 +148,10 @@ export default {
 <style lang="scss" scoped>
 .slider-wrapper {
   position: relative;
-  // width: 260px;
-  // height: 500px;
   display: flex;
   justify-content: flex-start;
   gap: 16px;
-  // display: flex;
-  // flex-direction: column;
-  // justify-content: space-between;
+
   @media (max-width: 500px) {
     flex-direction: column;
     margin-bottom: 28px;
@@ -140,6 +160,7 @@ export default {
 
   .nft-image-container {
     width: 110px;
+
     height: 110px;
     flex-shrink: 0;
     overflow: hidden;
@@ -153,7 +174,10 @@ export default {
     }
 
     .nft-image {
+      cursor: pointer;
       height: 100%;
+      width: 200%;
+      object-fit: cover;
     }
   }
   .info {
@@ -161,6 +185,7 @@ export default {
     .item-head {
       margin-bottom: 8px;
       .nft-name {
+        cursor: pointer;
         width: 100%;
         font-family: 'Sora';
         font-style: normal;
@@ -196,9 +221,7 @@ export default {
           gap: 8px;
         }
         .nft-price {
-          // width: auto;
           display: inline-block;
-          // flex-grow: 1;
           font-family: $sora;
           font-weight: 600;
           font-size: 13px;

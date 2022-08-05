@@ -1,23 +1,12 @@
 <template>
   <div class="slider-wrapper">
-    <!-- <div>id: {{ nft.id }}</div>
-    <div>name: {{ nft.name }}</div>
-    <div>collection: {{ nft.collection }}</div>
-    <div>src:{{ nft.image }}</div>
-    <img :src="nft.image" alt="" />
-    <div>userName: {{ nft.user.name }}</div>
-    <div>userAvatar: {{ nft.user.picture }}</div>
-    <img :src="nft.user.picture" alt="" />
-    <div>expireTimestamp: {{ timeAsString }}</div> -->
-
-    <div class="item-head">
+    <div @click="goToDetails(nft)" class="item-head">
       <div class="nft-image-container">
-        <img class="nft-image" src="@/assets/img/nft_image.jpg" alt="" />
-        <!-- <img class="nft-image" :src="nft.image" alt="" /> -->
+        <img class="nft-image" :src="nft.image" alt="" />
       </div>
 
       <div class="nft-blured">
-        <img class="nft-image-blured" src="@/assets/img/nft_image.jpg" alt="" />
+        <img class="nft-image-blured" :src="nft.image" alt="" />
       </div>
       <div class="nft-details">
         <div class="nft-name">{{ nft.name }}</div>
@@ -40,17 +29,15 @@
               :src="user.picture"
               alt=""
             />
-            <!-- <img class="avatar" src="@/assets/img/man_2.png" alt="" />
-          <img class="avatar" src="@/assets/img/man_3.png" alt="" />
-          <img class="avatar" src="@/assets/img/man_4.png" alt="" /> -->
           </div>
           <div class="people-qty">
-            {{ nft.biddingUsers }} people are bidding
+            {{ nft.bidsHistory.length }} people are bidding
           </div>
         </div>
-        <div @click="like" :class="[nft.favorite ? 'active' : '', 'icon-like']">
-          <!-- <img src="@/assets/img/heart-active.svg" alt="" /> -->
-        </div>
+        <div
+          @click="like"
+          :class="[nft.favorite ? 'active' : '', 'icon-like']"
+        ></div>
       </div>
     </div>
   </div>
@@ -63,11 +50,6 @@ export default {
     nft: {
       type: Object,
     },
-  },
-  data() {
-    return {
-      // timestamp: 0,
-    }
   },
   computed: {
     ...mapGetters['nftById'],
@@ -92,15 +74,29 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['updateItem']),
-    ...mapMutations(['toggleFav', 'timer', 'activateCountingState']),
+    ...mapActions(['setCurrentItem']),
+    goToDetails(nft) {
+      this.setCurrentItem(nft)
+    },
+    timer(id, category) {
+      this.$store.commit('timer', {
+        id: id,
+        category: category,
+      })
+    },
+    updateNFT(id, category) {
+      this.$store.dispatch('updateNFT', {
+        id: id,
+        category: category,
+      })
+    },
     async updateCounter() {
-      await this.updateItem(this.nft)
+      await this.updateNFT(this.nft.id, 'latestNFTs')
       this.timestamp = this.nft.expireTimestamp
 
       let that = this
       setTimeout(function go() {
-        that.timer(that.nft.id)
+        that.timer(that.nft.id, 'latestNFTs')
         if (that.nft.timeTillTheEnd >= 1000) {
           setTimeout(go, 1000)
         } else {
@@ -109,19 +105,24 @@ export default {
       }, 1000)
     },
     like() {
-      this.toggleFav(this.nft.id)
+      this.$store.commit('toggleFav', this.nft.id)
+    },
+    activateCounting(id, category) {
+      this.$store.commit('activateCounting', {
+        id: id,
+        category: category,
+      })
     },
   },
   mounted() {
     let that = this
-    // this.timestamp = this.nft.expireTimestamp
     if (this.nft.timeTillTheEnd) {
       if (this.nft.countingInAction) {
         return
       } else {
-        that.activateCountingState(that.nft.id)
+        that.activateCounting(that.nft.id, 'latestNFTs')
         setTimeout(function go() {
-          that.timer(that.nft.id)
+          that.timer(that.nft.id, 'latestNFTs')
           if (that.nft.timeTillTheEnd >= 1000) {
             setTimeout(go, 1000)
           } else {
@@ -130,9 +131,9 @@ export default {
         }, 1000)
       }
     } else {
-      that.activateCountingState(that.nft.id)
+      that.activateCounting(that.nft.id, 'latestNFTs')
       setTimeout(function go() {
-        that.timer(that.nft.id)
+        that.timer(that.nft.id, 'latestNFTs')
         if (that.nft.timeTillTheEnd >= 1000) {
           setTimeout(go, 1000)
         } else {
@@ -157,6 +158,10 @@ export default {
     height: 600px;
   }
 
+  .item-head {
+    cursor: pointer;
+  }
+
   .nft-image-container {
     width: 100%;
     height: 520px;
@@ -172,6 +177,8 @@ export default {
 
     .nft-image {
       height: 100%;
+      width: 200%;
+      object-fit: cover;
     }
   }
   .nft-blured {
@@ -179,13 +186,13 @@ export default {
     top: 48px;
     height: 100%;
     z-index: -1;
-    opacity: 0.2;
+    opacity: 0.1;
     filter: blur(35px);
     @media (max-width: 500px) {
       height: 50%;
     }
     img {
-      width: 100%;
+      width: 80%;
     }
   }
 
@@ -196,24 +203,17 @@ export default {
     align-items: flex-start;
     gap: 24px;
 
-    // margin-bottom: 24px;
-
     @media (max-width: 500px) {
       margin-bottom: 18px;
     }
     .nft-name {
-      // width: 70%;
-      font-family: 'Sora';
-      font-style: normal;
+      font-family: $sora;
       font-weight: 600;
       font-size: 20px;
       line-height: 25px;
       letter-spacing: 0.2px;
       max-width: 260px;
       margin-bottom: 8px;
-
-      /* On White/Dark 100 */
-
       color: $textBlack;
 
       &:first-letter {
@@ -226,8 +226,6 @@ export default {
       }
     }
     .nft-price {
-      // width: 30%;
-      // flex-grow: 1;
       font-family: $sora;
       font-weight: 600;
       font-size: 16px;
@@ -239,9 +237,6 @@ export default {
       padding: 8px 14px;
       background-color: rgba(42, 39, 201, 0.1);
       border-radius: 4px;
-      @media (max-width: 500px) {
-        // min-width: 60px;
-      }
     }
   }
   .timer {

@@ -1,9 +1,8 @@
 <template>
   <div class="slider-wrapper">
-    <div class="item-head">
+    <div @click="goToDetails(nft)" class="item-head">
       <div class="nft-image-container">
-        <img class="nft-image" src="@/assets/img/nft_image.jpg" alt="" />
-        <!-- <img class="nft-image" :src="nft.image" alt="" /> -->
+        <img class="nft-image" :src="nft.image" alt="" />
       </div>
       <div class="nft-details">
         <div class="nft-name">{{ nft.name }}</div>
@@ -22,7 +21,7 @@
       <div class="likes">
         <div class="peoples">
           <div class="people-qty">
-            {{ nft.biddingUsers }} people are bidding
+            {{ nft.bidsHistory.length }} people are bidding
           </div>
         </div>
         <div
@@ -69,15 +68,36 @@ export default {
     },
   },
   methods: {
+    ...mapActions(['setCurrentItem']),
+    updateNFT(id, category) {
+      this.$store.dispatch('updateNFT', {
+        id,
+        category,
+      })
+    },
+    timer(id, category) {
+      this.$store.commit('timer', {
+        id: id,
+        category: category,
+      })
+    },
+    activateCounting(id, category) {
+      this.$store.commit('activateCounting', {
+        id: id,
+        category: category,
+      })
+    },
+    goToDetails(nft) {
+      this.setCurrentItem(nft)
+      this.$nuxt.$options.router.push('/details')
+    },
     async updateCounter() {
-      // await this.updateItem(this.nft)
-      this.$emit('updateItem', this.nft.id)
+      await this.updateNFT(this.nft.id, 'popularNFTs')
       this.timestamp = this.nft.expireTimestamp
 
       let that = this
       setTimeout(function go() {
-        // that.timer(that.nft.id)
-        that.$emit('timer', that.nft.id)
+        that.timer(that.nft.id, 'popularNFTs')
         if (that.nft.timeTillTheEnd >= 1000) {
           setTimeout(go, 1000)
         } else {
@@ -86,22 +106,18 @@ export default {
       }, 1000)
     },
     like() {
-      // this.toggleFav(this.nft.id)
-      this.$emit('toggleFav', this.nft.id)
+      this.$store.commit('toggleFav', this.nft.id)
     },
   },
   mounted() {
     let that = this
-    // this.timestamp = this.nft.expireTimestamp
     if (this.nft.timeTillTheEnd) {
       if (this.nft.countingInAction) {
         return
       } else {
-        // that.activateCountingState(that.nft.id)
-        that.$emit('activateCountingState', that.nft.id)
+        that.activateCounting(that.nft.id, 'popularNFTs')
         setTimeout(function go() {
-          // that.timer(that.nft.id)
-          that.$emit('timer', that.nft.id)
+          that.timer(that.nft.id, 'popularNFTs')
           if (that.nft.timeTillTheEnd >= 1000) {
             setTimeout(go, 1000)
           } else {
@@ -110,11 +126,9 @@ export default {
         }, 1000)
       }
     } else {
-      // that.activateCountingState(that.nft.id)
-      that.$emit('activateCountingState', that.nft.id)
+      that.activateCounting(that.nft.id, 'popularNFTs')
       setTimeout(function go() {
-        // that.timer(that.nft.id)
-        that.$emit('timer', that.nft.id)
+        that.timer(that.nft.id, 'popularNFTs')
         if (that.nft.timeTillTheEnd >= 1000) {
           setTimeout(go, 1000)
         } else {
@@ -151,7 +165,13 @@ export default {
 
     .nft-image {
       height: 100%;
+      width: 150%;
+      object-fit: cover;
     }
+  }
+
+  .item-head {
+    cursor: pointer;
   }
 
   .nft-name {

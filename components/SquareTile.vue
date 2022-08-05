@@ -8,15 +8,14 @@
               <div class="nft-image-container">
                 <img
                   class="nft-image"
-                  src="@/assets/img/nft_image.jpg"
+                  :src="require(`~/assets/img/bottom-tiles/${nft.image}`)"
                   alt=""
                 />
                 <img
                   class="blured-copy"
-                  src="@/assets/img/nft_image.jpg"
+                  :src="require(`~/assets/img/bottom-tiles/${nft.image}`)"
                   alt=""
                 />
-                <!-- <img class="nft-image" :src="nft.image" alt="" /> -->
               </div>
               <div class="nft-price">{{ nft.price.toFixed(2) }} ETH</div>
             </div>
@@ -53,12 +52,10 @@ export default {
         speed: 2000,
       },
       async loadSmallTiles() {
-        for (let i = 0; i < 20; i++) {
+        for (let i = 1; i < 21; i++) {
           let nft = {}
           nft.price = 1 + Math.random() * 6
-          // nft.image = `https://source.unsplash.com/collection/50332754/600x600/?sig=${Math.floor(
-          //   1 + Math.random() * 275
-          // )}`
+          nft.image = 'bottom-tile_' + i + '.jpg'
           this.smallTiles.push(nft)
         }
       },
@@ -94,14 +91,12 @@ export default {
 
 <style lang="scss" scoped>
 .swiper-container {
-  // overflow: visible;
   padding-bottom: 50px;
   padding: 30px 0 50px;
 }
 .tiles-row {
   display: flex;
   width: auto;
-  // padding-bottom: 24px;
 
   img {
     border-radius: 20px;
@@ -118,7 +113,7 @@ export default {
     width: 100%;
     height: auto;
 
-    opacity: 0.2;
+    opacity: 0.1;
     filter: blur(31px);
   }
 
@@ -132,7 +127,6 @@ export default {
     .nft-image-container {
       width: 90px;
       height: 90px;
-      // overflow: hidden;
       border-radius: 20px;
       position: relative;
       .nft-image {

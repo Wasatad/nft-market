@@ -3,7 +3,6 @@
 </template>
 
 <script>
-// import { Bar } from 'vue-chartjs'
 import { Line } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -32,7 +31,6 @@ import {
   Tooltip,
 } from 'chart.js'
 
-// ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 ChartJS.register(
   ArcElement,
   LineElement,
@@ -81,7 +79,6 @@ export default {
     return {
       chartOptions: {
         responsive: true,
-        // maintainAspectRatio: false,
 
         plugins: {
           legend: {
@@ -114,10 +111,8 @@ export default {
             grid: {
               color: '#E2E2ED',
               borderDash: [7, 5],
-              // lineWidth: 2,
             },
             ticks: {
-              // color: '#7780A1',
               display: false,
             },
           },
@@ -134,7 +129,6 @@ export default {
       },
     }
   },
-  methods: {},
   mounted() {
     let canvas = document.querySelector('canvas')
     let ctx = canvas.getContext('2d')

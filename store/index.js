@@ -1,59 +1,154 @@
 import Vuex from 'vuex'
 import { uid } from 'uid'
 import { LoremIpsum } from 'lorem-ipsum'
+import nodeFetch from 'node-fetch'
+import { createApi } from 'unsplash-js'
+
+const unsplash = createApi({
+  accessKey: 'SSG3BGr1mW1zvyh-mOcQLaf1RZhlz8vwyuZw4lRsTxA',
+  fetch: nodeFetch,
+})
+
 const lorem = new LoremIpsum()
 
 const store = () => {
   return new Vuex.Store({
     state: {
-      nftItems: [],
+      latestNFTs: [],
       popularNFTs: [],
-      currentNft: null,
+      otherNFTs: [],
+      currentNFT: {},
       userBids: [],
-      itemsWithActiveTimer: [],
+      photos: [],
+
       mobileMenuOpened: false,
+      isCongratsAlertVisible: false,
     },
     mutations: {
-      setCurrentItem(state, item) {
-        state.currentNft = { ...item }
+      openCongratsAlert(state) {
+        state.isCongratsAlertVisible = true
+      },
+      closeCongratsAlert(state) {
+        state.isCongratsAlertVisible = false
       },
       toggleFav(state, id) {
-        let item = state.nftItems.find((item) => {
-          return item.id == id
-        })
-        item.favorite = !item.favorite
-      },
+        //Check every array for this item
+        if (
+          state.latestNFTs.findIndex((item) => {
+            return item.id == id
+          }) != -1
+        ) {
+          let item = state.latestNFTs.find((item) => {
+            return item.id == id
+          })
+          item.favorite = !item.favorite
+        }
 
-      toggleFavCurrent(state) {
-        state.currentNft.favorite = !state.currentNft.favorite
+        if (
+          state.popularNFTs.findIndex((item) => {
+            return item.id == id
+          }) != -1
+        ) {
+          let item = state.popularNFTs.find((item) => {
+            return item.id == id
+          })
+          item.favorite = !item.favorite
+        }
+
+        if (
+          state.otherNFTs.findIndex((item) => {
+            return item.id == id
+          }) != -1
+        ) {
+          let item = state.otherNFTs.find((item) => {
+            return item.id == id
+          })
+          item.favorite = !item.favorite
+        }
+
+        if (state.currentNFT) {
+          state.currentNFT.favorite = !state.currentNFT.favorite
+        }
       },
 
       //Timer for all NFT`s on main
-      timer(state, id) {
-        let item = state.nftItems.find((item) => {
+      timer(state, { id, category }) {
+        let targetArray = null
+
+        if (category == 'popularNFTs') {
+          targetArray = state.popularNFTs
+        } else if (category == 'latestNFTs') {
+          targetArray = state.latestNFTs
+        } else if (category == 'otherNFTs') {
+          targetArray = state.otherNFTs
+        }
+        let item = targetArray.find((item) => {
           return item.id == id
         })
-        item.timeTillTheEnd -= 1000
+        if (item) {
+          item.timeTillTheEnd -= 1000
+        }
       },
 
       //Timer for current NFT
-      currentTimer(state, id) {
-        if (state.currentNft.id == id) {
-          state.currentNft.timeTillTheEnd -= 1000
-        }
-      },
-      setNewTimingItem(state, id) {
-        state.itemsWithActiveTimer.push(id)
-      },
-      setNewCurrentPrice(state, price) {
-        state.currentNft.price = price
-        state.currentNft.bidsHistory.push(price)
-        state.userBids.push(state.currentNft.id)
-        //Проверить каждый из двух массивов на главной. Если в массиве есть такой NFT - обновить его стоимость
+      currentTimer(state) {
+        state.currentNFT.timeTillTheEnd -= 1000
+        this.$cookies.set('currentNFT', JSON.stringify(state.currentNFT))
       },
 
-      activateCountingState(state, id) {
-        let item = state.nftItems.find((item) => {
+      setNewPrice(state, { price, id }) {
+        state.currentNFT.price = price
+        state.currentNFT.bidsHistory.push(price)
+        state.userBids.push(state.currentNFT.id)
+        this.$cookies.set('userBids', JSON.stringify(state.userBids))
+
+        //Check each array. If it includes this NFT - update it price
+
+        if (
+          state.latestNFTs.findIndex((item) => {
+            return item.id == id
+          }) != -1
+        ) {
+          let item = state.latestNFTs.find((item) => {
+            return item.id == id
+          })
+          item.price = price
+        }
+
+        if (
+          state.popularNFTs.findIndex((item) => {
+            return item.id == id
+          }) != -1
+        ) {
+          let item = state.popularNFTs.find((item) => {
+            return item.id == id
+          })
+          item.price = price
+        }
+
+        if (
+          state.otherNFTs.findIndex((item) => {
+            return item.id == id
+          }) != -1
+        ) {
+          let item = state.otherNFTs.find((item) => {
+            return item.id == id
+          })
+          item.price = price
+        }
+      },
+
+      activateCounting(state, { id, category }) {
+        let targetArray = null
+
+        if (category == 'popularNFTs') {
+          targetArray = state.popularNFTs
+        } else if (category == 'latestNFTs') {
+          targetArray = state.latestNFTs
+        } else if (category == 'otherNFTs') {
+          targetArray = state.otherNFTs
+        }
+        let item = targetArray.find((item) => {
           return item.id == id
         })
         item.countingInAction = true
@@ -66,30 +161,54 @@ const store = () => {
       },
     },
     actions: {
-      async nuxtServerInit(vueContext) {
-        // Download first 4 people
-        let randomUsers = []
-        // for (let i = 0; i < 5; i++) {
-        //   let user = await this.$axios.$get(
-        //     'https://randomuser.me/api/?nat=us,dk,fr,gb'
-        //   )
-        //   randomUsers.push(user.results[0])
-        // }
+      clearNFTs(context, collection) {
+        if (collection == 'otherNFTs') {
+          context.state.otherNFTs = []
+        } else if (collection == 'popularNFTs') {
+          context.state.popularNFTs = []
+        } else if (collection == 'latestNFTs') {
+          context.state.latestNFTs = []
+        }
+      },
+      async loadNFTs(context, payload) {
+        let targetArray = null
+        if (payload.category == 'latestNFTs') {
+          targetArray = context.state.latestNFTs
+        } else if (payload.category == 'popularNFTs') {
+          targetArray = context.state.popularNFTs
+        } else if (payload.category == 'otherNFTs') {
+          targetArray = context.state.otherNFTs
+        }
 
-        for (let i = 0; i < 9; i++) {
+        //Random German - API
+        let randomUsers = []
+
+        try {
+          let response = await this.$axios.$get(
+            'https://randomname.de/?format=json&count=10&images=1'
+          )
+
+          randomUsers = response
+        } catch (err) {
+          console.log(err)
+        }
+
+        for (let i = 0; i < payload.qty; i++) {
           let nft = {}
           nft.id = uid()
           nft.name = lorem.generateWords(4)
           nft.price = 3 + Math.random() * 10
 
-          //Сгенерируем несколько точек/ставок, по убывающей от цены
           nft.bidsHistory = []
           nft.bidsHistory.push(+nft.price.toFixed(2))
-          //Генерируем рандомное количество итераций
-          let bidsQty = Math.floor(1 + Math.random() * 8)
+
+          //Generate random number for iterations
+          let bidsQty = Math.floor(1 + Math.random() * 6)
+
+          //Generate random prices from max to min
           for (let i = 0; i < bidsQty; i++) {
             if (i == 1) {
-              let newBid = nft.price - 2 + Math.random() * 1
+              let newBid = nft.price - 2 + Math.random()
               nft.bidsHistory.push(+newBid.toFixed(2))
             } else {
               let lastBid = nft.bidsHistory[nft.bidsHistory.length - 1]
@@ -105,144 +224,243 @@ const store = () => {
           nft.countingInAction = false
 
           let collections = [
-            'photography',
-            'games',
-            'music',
-            'architecture',
-            'abstract',
+            'Photography',
+            'Games',
+            'Music',
+            'Architecture',
+            'Abstract',
           ]
-          nft.collection =
+          nft.collection = { name: '', picture: '' }
+
+          nft.collection.name =
             collections[Math.floor(Math.random() * collections.length)]
-
-          // nft.image = `https://source.unsplash.com/collection/50332754/600x600/?sig=${Math.floor(
-          //   1 + Math.random() * 275
-          // )}`
-
-          // nft.author = {}
-          // let author = await this.$axios.$get(
-          //   'https://randomuser.me/api/?nat=us,dk,fr,gb'
-          // )
-          // nft.author.name =
-          // author.results[0].name.first + ' ' + author.results[0].name.last
-
-          // nft.author.picture = author.results[0].picture.medium
-
-          nft.users = []
-          for (let i = 1; i < 5; i++) {
-            let user = {}
-            // user.picture =
-            //   randomUsers[Math.floor(Math.random() * 5)].picture.thumbnail
-            // nft.users.push(user)
-            user.picture = '@/assets/img/man_1.png'
+          nft.collection.picture = ''
+          if (nft.collection.name == 'Photography') {
+            nft.collection.picture = 'photography-collection.png'
+          } else if (nft.collection.name == 'Games') {
+            nft.collection.picture = 'games-collection.png'
+          } else if (nft.collection.name == 'Music') {
+            nft.collection.picture = 'music-collection.png'
+          } else if (nft.collection.name == 'Architecture') {
+            nft.collection.picture = 'architecture-collection.png'
+          } else if (nft.collection.name == 'Abstract') {
+            nft.collection.picture = 'abstract-collection.png'
           }
 
-          nft.biddingUsers = Math.floor(12 + Math.random() * (150 + 1 - 12))
-          nft.likedUsers = Math.floor(64 + Math.random() * (600 + 1 - 64))
+          nft.image =
+            context.state.photos[Math.floor(Math.random() * 30)].urls.regular
 
-          nft.expireTimestamp =
-            // Date.now() + 60000 * Math.floor(2 + Math.random() * 2)
-            80000 * Math.floor(1 + Math.random() * 8)
-          // 60000
+          nft.author = { name: '', picture: '' }
 
-          vueContext.state.nftItems.push(nft)
+          if (!payload.author) {
+            let author = randomUsers[Math.floor(Math.random() * 10)]
+
+            nft.author.name = author.username
+            nft.author.picture = author.image
+          } else {
+            nft.author.name = payload.author.name
+            nft.author.picture = payload.author.picture
+          }
+
+          nft.users = []
+
+          let avatarsQty = bidsQty
+          if (avatarsQty > 4) {
+            avatarsQty = 4
+          }
+
+          for (let i = 0; i <= avatarsQty; i++) {
+            let user = {}
+
+            //Random German - API
+            user.picture = randomUsers[Math.floor(Math.random() * 10)].image
+
+            nft.users.push(user)
+          }
+
+          nft.expireTimestamp = 90000 * Math.floor(1 + Math.random() * 9)
+          targetArray.push(nft)
         }
       },
-      async updateItem(vueContext, nft) {
-        // vueContext.state.nftItems.findIndex((item) => {
-        //   return item.id == nft.id
-        // })
+      async updateNFT(context, payload) {
+        let targetArray = null
 
-        // let index = vueContext.state.nftItems.findIndex((item) => {
-        //   return item.id == nft.id
-        // })
+        if (payload.category == 'popularNFTs') {
+          targetArray = context.state.popularNFTs
+        } else if (payload.category == 'latestNFTs') {
+          targetArray = context.state.latestNFTs
+        } else if (payload.category == 'otherNFTs') {
+          targetArray = context.state.otherNFTs
+        }
 
-        let updatingNft = vueContext.state.nftItems.find((item) => {
-          return item.id == nft.id
+        let updatingNft = targetArray.find((item) => {
+          return item.id == payload.id
         })
 
-        // updatingNft.id = uid()
+        updatingNft.id = uid()
         updatingNft.name = lorem.generateWords(4)
 
-        updatingNft.price = 1 + Math.random() * 6
+        updatingNft.price = 3 + Math.random() * 10
+
+        updatingNft.bidsHistory = []
+        updatingNft.bidsHistory.push(+updatingNft.price.toFixed(2))
+
+        let bidsQty = Math.floor(1 + Math.random() * 8)
+        for (let i = 0; i < bidsQty; i++) {
+          if (i == 1) {
+            let newBid = updatingNft.price - 2 + Math.random() * 1
+            updatingNft.bidsHistory.push(+newBid.toFixed(2))
+          } else {
+            let lastBid =
+              updatingNft.bidsHistory[updatingNft.bidsHistory.length - 1]
+            let newBid = lastBid - Math.random()
+            updatingNft.bidsHistory.push(+newBid.toFixed(2))
+          }
+        }
+
+        updatingNft.bidsHistory.reverse()
 
         updatingNft.favorite = false
 
         let collections = [
-          'photography',
-          'games',
-          'music',
-          'architecture',
-          'abstract',
+          'Photography',
+          'Games',
+          'Music',
+          'Architecture',
+          'Abstract',
         ]
-        updatingNft.collection =
+        updatingNft.collection = { name: '', picture: '' }
+
+        updatingNft.collection.name =
           collections[Math.floor(Math.random() * collections.length)]
 
-        // updatingNft.image = `https://source.unsplash.com/collection/50332754/600x600/?sig=${Math.floor(
-        //   1 + Math.random() * 275
-        // )}`
+        updatingNft.collection.picture = ''
+        if (updatingNft.collection.name == 'Photography') {
+          updatingNft.collection.picture = 'photography-collection.png'
+        } else if (updatingNft.collection.name == 'Games') {
+          updatingNft.collection.picture = 'games-collection.png'
+        } else if (updatingNft.collection.name == 'Music') {
+          updatingNft.collection.picture = 'music-collection.png'
+        } else if (updatingNft.collection.name == 'Architecture') {
+          updatingNft.collection.picture = 'architecture-collection.png'
+        } else if (updatingNft.collection.name == 'Abstract') {
+          updatingNft.collection.picture = 'abstract-collection.png'
+        }
 
-        // let author = await this.$axios.$get(
-        //   'https://randomuser.me/api/?nat=us,dk,fr,gb'
-        // )
-        // vueContext.state.nftItems[index].author.name =
-        //   author.results[0].name.first + ' ' + author.results[0].name.last
+        updatingNft.image = ''
+        try {
+          let result = await unsplash.photos.getRandom({
+            collectionIds: ['50332754'],
+            count: 1,
+          })
+          updatingNft.image = result.response[0].urls.regular
+        } catch (err) {
+          console.log(err)
+        }
 
-        // vueContext.state.nftItems[index].author.picture =
-        //   author.results[0].picture.medium
+        let randomUsers = []
+
+        try {
+          let response = await this.$axios.$get(
+            'https://randomname.de/?format=json&count=10&images=1'
+          )
+          randomUsers = response
+        } catch (err) {
+          console.log(err)
+        }
+
+        updatingNft.author = { name: '', picture: '' }
+
+        let author = randomUsers[Math.floor(Math.random() * 10)]
+        updatingNft.author.name = author.username
+        updatingNft.author.picture = author.image
 
         updatingNft.users = []
-        for (let i = 1; i < 5; i++) {
+
+        let avatarsQty = bidsQty
+        if (avatarsQty > 4) {
+          avatarsQty = 4
+        }
+
+        for (let i = 0; i <= avatarsQty; i++) {
           let user = {}
-          // let data = await this.$axios.$get(
-          //   'https://randomuser.me/api/?nat=us,dk,fr,gb'
-          // )
-          // user.picture = data.results[0].picture.thumbnail
-          user.picture = '@/assets/img/man_1.png'
+
+          user.picture = randomUsers[Math.floor(Math.random() * 10)].image
+
           updatingNft.users.push(user)
         }
 
-        updatingNft.biddingUsers = Math.floor(
-          12 + Math.random() * (150 + 1 - 12)
-        )
-        updatingNft.likedUsers = Math.floor(64 + Math.random() * (600 + 1 - 64))
-
-        updatingNft.expireTimestamp =
-          // Date.now() + 60000 * Math.floor(2 + Math.random() * 2)
-          80000 * Math.floor(1 + Math.random() * 8)
-        // 60000
+        updatingNft.expireTimestamp = 90000 * Math.floor(1 + Math.random() * 9)
         updatingNft.timeTillTheEnd = updatingNft.expireTimestamp
+      },
 
-        updatingNft.collection =
-          collections[Math.floor(Math.random() * collections.length)]
+      async setCurrentItem(context, item) {
+        context.state.currentNFT = { ...item }
 
-        updatingNft.expireTimestamp = 10000 * Math.floor(1 + Math.random() * 60)
+        this.$cookies.set(
+          'currentNFT',
+          JSON.stringify(context.state.currentNFT)
+        )
+
+        window.scrollTo(top)
+        this.$router.push('/details')
+      },
+
+      async nuxtServerInit({ dispatch, state }) {
+        let currentNFT = this.$cookies.get('currentNFT')
+        let userBids = this.$cookies.get('userBids')
+
+        if (currentNFT) {
+          state.currentNFT = currentNFT
+        }
+
+        if (userBids) {
+          state.userBids = userBids
+        }
+
+        //Load photos from unsplah
+        try {
+          let result = await unsplash.photos.getRandom({
+            collectionIds: ['50332754'],
+            count: 30,
+          })
+          state.photos = result.response
+        } catch (err) {
+          console.log(err)
+        }
+
+        if (state.latestNFTs.length < 1) {
+          await dispatch('loadNFTs', {
+            category: 'latestNFTs',
+            qty: 9,
+          })
+        }
+        if (state.popularNFTs.length < 1) {
+          await dispatch('loadNFTs', {
+            category: 'popularNFTs',
+            qty: 5,
+          })
+        }
       },
     },
     getters: {
-      nftItems(state) {
-        return state.nftItems
+      latestNFTs(state) {
+        return state.latestNFTs
       },
       sortedByPrice(state) {
-        let sortedArray = [...state.nftItems].sort(function (a, b) {
+        let sortedArray = [...state.latestNFTs].sort(function (a, b) {
           return a.price - b.price
         })
-        // return sortedArray.slice(0, 4)
         return sortedArray
       },
       nftById(state, id) {
-        state.nftItems.find((item) => {
+        state.latestNFTs.find((item) => {
           return item.id == id
         })
       },
 
       alredyOffered: (state) => (id) => {
-        // console.log(id)
-        // console.log(state.userBids)
-        // console.log(state.userBids.find((item) => item == id))
         return state.userBids.includes(id)
-      },
-      timerIsActive: (state) => (id) => {
-        return state.itemsWithActiveTimer.includes(id)
       },
     },
   })

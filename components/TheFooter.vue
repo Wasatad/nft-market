@@ -234,7 +234,6 @@ footer {
 
       .search-input {
         position: relative;
-        // padding: 0 15px;
         width: 100%;
         max-width: 600px;
 

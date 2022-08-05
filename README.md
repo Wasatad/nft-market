@@ -1,68 +1,64 @@
-# nft-market
+# NFT Market
 
-## Build Setup
+An NFT marketplace website
 
-```bash
-# install dependencies
-$ npm install
+## Table of contents
 
-# serve with hot reload at localhost:3000
-$ npm run dev
+- [Overview](#overview)
+  - [Functionality](#functionality)
+  - [Screenshot](#screenshot)
+  - [Link](#link)
+- [My process](#my-process)
+  - [Built with](#built-with)
+- [Author](#author)
 
-# build for production and launch server
-$ npm run build
-$ npm run start
+## Overview
 
-# generate static project
-$ npm run generate
-```
+This website developed with Nuxt framework and behind the scene it uses server-side rendering technology. All data (NFT images, users) downloading on server-side dynamically.
+Unsplah API is used for fetching photos. Random users generated with Randomname.de API.
 
-For detailed explanation on how things work, check out the [documentation](https://nuxtjs.org).
+Current NFT is keep tracking, even after refreshing the page (сookies are used for this).
 
-## Special Directories
+You can add a new bet on any NFT`s page. New data will be saved at Vuex store and item chart will be updated.
 
-You can create the following extra directories, some of which have special behaviors. Only `pages` is required; you can delete them if you don't want to use their functionality.
+Every NFT has expire time. When the time is up, making a new bet will be denied, new NFT on main page will be generated.
 
-### `assets`
+### Functionality
 
-The assets directory contains your uncompiled assets such as Stylus or Sass files, images, or fonts.
+Users are able to:
 
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/assets).
+- View the optimal layout for the app depending on their device's screen size
+- See hover states for all interactive elements on the page
+- Make a bet on NFT page.
+- Receive form validations if incorrect price
+- See a bid confirmation push
+- Search in two categories
+- Download more NFTs
+- Mark NFT as liked
 
-### `components`
+### Screenshot
 
-The components directory contains your Vue.js components. Components make up the different parts of your page and can be reused and imported into your pages, layouts and even other components.
+![image](assets/img/nft-market-preview.png)
 
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/components).
+### Link
 
-### `layouts`
+- Live Site URL: [Demo](https://audiophile-shop.herokuapp.com/)
 
-Layouts are a great help when you want to change the look and feel of your Nuxt app, whether you want to include a sidebar or have distinct layouts for mobile and desktop.
+## My process
 
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/layouts).
+### Built with
 
-### `pages`
+- [Vue.js](https://vuejs.org/) - JS framework
+- [Vuex.js](https://vuex.vuejs.org/) - State manager
+- [SCSS](https://sass-lang.com/) - CSS pre-processor
+- [Nuxt.js](https://nuxtjs.org/) - SSR framework
+- [Chart.js] (https://www.chartjs.org/) - Charts
+- [Random User API](https://randomname.de) - API for fetching random people
+- [Unsplash API](https://unsplash.com/documentation) - API for fetching random photos
+- [AOS] (https://michalsnik.github.io/aos/) - Animate on scroll library
+- [Vue-Kinesis] (https://www.npmjs.com/package/vue-kinesis) - Interactive animations
+- [Vue-Awesome-Swiper] (https://www.npmjs.com/package/vue-awesome-swiper) - Slider library
 
-This directory contains your application views and routes. Nuxt will read all the `*.vue` files inside this directory and setup Vue Router automatically.
+## Author
 
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/get-started/routing).
-
-### `plugins`
-
-The plugins directory contains JavaScript plugins that you want to run before instantiating the root Vue.js Application. This is the place to add Vue plugins and to inject functions or constants. Every time you need to use `Vue.use()`, you should create a file in `plugins/` and add its path to plugins in `nuxt.config.js`.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/plugins).
-
-### `static`
-
-This directory contains your static files. Each file inside this directory is mapped to `/`.
-
-Example: `/static/robots.txt` is mapped as `/robots.txt`.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/static).
-
-### `store`
-
-This directory contains your Vuex store files. Creating a file in this directory automatically activates Vuex.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/store).
+- Telegram - [@kuznetsovtm](https://t.me/@kuznetsovtm)

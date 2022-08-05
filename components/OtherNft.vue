@@ -68,11 +68,12 @@ export default {
     },
   },
   methods: {
-    ...mapMutations(['toggleFav']),
     ...mapActions(['setCurrentItem']),
-    goToDetails(nft) {
-      this.setCurrentItem(nft)
-      this.$nuxt.$options.router.push('/details')
+    updateNFT(id, category) {
+      this.$store.dispatch('updateNFT', {
+        id: id,
+        category: category,
+      })
     },
     timer(id, category) {
       this.$store.commit('timer', {
@@ -80,19 +81,22 @@ export default {
         category: category,
       })
     },
-    updateNFT(id, category) {
-      this.$store.dispatch('updateNFT', {
-        id,
-        category,
+    activateCounting(id, category) {
+      this.$store.commit('activateCounting', {
+        id: id,
+        category: category,
       })
     },
+    goToDetails(nft) {
+      this.setCurrentItem(nft)
+    },
     async updateCounter() {
-      await this.updateNFT(this.nft.id, 'latestNFTs')
+      await this.updateNFT(this.nft.id, 'otherNFTs')
       this.timestamp = this.nft.expireTimestamp
 
       let that = this
       setTimeout(function go() {
-        that.timer(that.nft.id, 'latestNFTs')
+        that.timer(that.nft.id, 'otherNFTs')
         if (that.nft.timeTillTheEnd >= 1000) {
           setTimeout(go, 1000)
         } else {
@@ -101,24 +105,18 @@ export default {
       }, 1000)
     },
     like() {
-      this.toggleFav(this.nft.id)
-    },
-    activateCounting(id, category) {
-      this.$store.commit('activateCounting', {
-        id: id,
-        category: category,
-      })
+      this.$store.commit('toggleFav', this.nft.id)
     },
   },
   mounted() {
     let that = this
-    if (that.nft.timeTillTheEnd) {
-      if (that.nft.countingInAction) {
+    if (this.nft.timeTillTheEnd) {
+      if (this.nft.countingInAction) {
         return
       } else {
-        that.activateCounting(that.nft.id, 'latestNFTs')
+        that.activateCounting(that.nft.id, 'otherNFTs')
         setTimeout(function go() {
-          that.timer(that.nft.id, 'latestNFTs')
+          that.timer(that.nft.id, 'otherNFTs')
           if (that.nft.timeTillTheEnd >= 1000) {
             setTimeout(go, 1000)
           } else {
@@ -127,9 +125,9 @@ export default {
         }, 1000)
       }
     } else {
-      that.activateCounting(that.nft.id, 'latestNFTs')
+      that.activateCounting(that.nft.id, 'otherNFTs')
       setTimeout(function go() {
-        that.timer(that.nft.id, 'latestNFTs')
+        that.timer(that.nft.id, 'otherNFTs')
         if (that.nft.timeTillTheEnd >= 1000) {
           setTimeout(go, 1000)
         } else {
@@ -146,6 +144,13 @@ export default {
   position: relative;
   width: 260px;
   height: 500px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-bottom: 50px;
+  @media (max-width: 600px) {
+    margin-bottom: 30px;
+  }
 
   .nft-image-container {
     width: 100%;

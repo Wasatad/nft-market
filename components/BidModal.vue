@@ -2,9 +2,6 @@
   <div class="bid-wrapper">
     <div class="label">Enter your bid:</div>
     <div class="input-container">
-      <!-- <button class="plus"
-        onclick="this.parentNode.querySelector('input[type=number]').stepUp()"
-      ></button> -->
       <img
         class="plus"
         src="@/assets/img/step-up.svg"
@@ -29,7 +26,6 @@
         alt=""
         onclick="this.parentNode.querySelector('input[type=number]').stepDown()"
       />
-      <!-- <span>ETH</span> -->
     </div>
     <div class="alerts">
       <div v-if="moreThenHundred">Max bid - 100 ETH</div>
@@ -74,30 +70,20 @@ export default {
           Number.parseFloat(this.$refs.bid.value) >=
           this.currentPrice.toFixed(2)
         ) {
-          console.log('0909')
           this.newPrice = Number.parseFloat(this.$refs.bid.value)
           this.$emit('addBid', this.newPrice)
-          // console.log(Number.parseFloat(this.$refs.bid.value))
           this.close()
         } else {
-          console.log(Number.parseFloat(this.$refs.bid.value))
-          console.log(this.currentPrice)
           this.lowerThenCurrent = true
         }
       }
     },
     validate(e) {
-      // console.log(e.target.value)
       if (e.target.value >= 100) {
         this.moreThenHundred = true
       } else {
         this.moreThenHundred = false
       }
-      // console.log(2222)
-      // if (+e.target.value > this.parsedPrice) {
-      //   console.log(4444)
-      //   this.lowerThenCurrent = false
-      // }
 
       // Check if value < initial value
       if (e.type == 'blur') {
@@ -106,46 +92,36 @@ export default {
         } else {
           this.lowerThenCurrent = false
         }
-        // e.target.value = this.parsedPrice
       }
 
       //Check if value <= 100
       if (this.moreThenHundred == true) {
-        // console.log(1)
-        console.log(e.target.value)
         e.target.value = e.target.value.split('').slice(0, -1).join('')
-        console.log(e.target.value.split('').slice(0, -1).join(''))
       }
 
       //Check if more than two simbols after digit
       if (e.target.value.split('.')[1]) {
         if (e.target.value.split('.')[1].length > 2) {
-          console.log('true')
           e.target.value = e.target.value.split('').slice(0, -1).join('')
         }
       }
     },
   },
   computed: {
-    ...mapState(['currentNft']),
+    ...mapState(['currentNFT']),
     parsedPrice() {
-      return (Number.parseFloat(this.currentNft.price) + 0.01).toFixed(2)
+      return (Number.parseFloat(this.currentNFT.price) + 0.01).toFixed(2)
     },
     timeIsUp() {
-      if (this.currentNft.timeTillTheEnd >= 1000) {
+      if (this.currentNFT.timeTillTheEnd >= 1000) {
         return false
       } else {
-        console.log(1)
         return true
       }
     },
   },
   mounted() {
-    // console.log(currentNft.price)
-    console.log(this.currentNft)
-    this.currentPrice = parseFloat(this.currentNft.price) + 0.01
-    // this.currentPrice = 7.53344
-    console.log(2)
+    this.currentPrice = parseFloat(this.currentNFT.price) + 0.01
   },
 }
 </script>
@@ -196,7 +172,6 @@ export default {
       &::placeholder {
         font-size: 32px;
         opacity: 0.2;
-        // vertical-align: text-top;
         text-align: center;
       }
 
@@ -233,11 +208,9 @@ export default {
     justify-content: center;
     align-items: center;
     gap: 16px;
-    // min-width: 300px;
     margin: 0 auto;
 
     @media (max-width: 1200px) {
-      // display: none;
       flex-direction: column-reverse;
     }
 

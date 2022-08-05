@@ -1,6 +1,8 @@
 <template>
   <div class="wrapper header">
-    <img src="@/assets/img/logo.svg" alt="" />
+    <NuxtLink to="/">
+      <img src="@/assets/img/logo.svg" alt="" />
+    </NuxtLink>
     <ul class="menu">
       <li>Auctions</li>
       <li>Roadmap</li>
@@ -12,13 +14,15 @@
       <button class="solid-btn">My account</button>
     </div>
     <div @click="toggleMenu" class="burger">
-      <img src="@/assets/img/burger.svg" alt="" />
+      <img v-if="mobileMenuOpened" src="@/assets/img/close-mobile.svg" alt="" />
+      <img v-else src="@/assets/img/burger.svg" alt="" />
     </div>
   </div>
 </template>
 
 <script>
-import { mapMutations } from 'vuex'
+import { mapMutations, mapState } from 'vuex'
+
 export default {
   methods: {
     ...mapMutations(['toggleMobileMenu']),
@@ -31,6 +35,9 @@ export default {
         body.classList.add('no-scroll')
       }
     },
+  },
+  computed: {
+    ...mapState(['mobileMenuOpened']),
   },
   mounted() {
     let header = document.querySelector('.header')

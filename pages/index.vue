@@ -1,13 +1,20 @@
 <template>
   <div>
-    <kinesis-container>
+    <kinesis-container :active="isDesktop">
       <div class="main-screen">
         <img
           class="circles"
           src="@/assets/img/main-screen-background.png"
           alt=""
         />
-        <div class="content">
+        <div
+          @click.self="
+            {
+              ;(searchOptionsOpened = false), (searchResultsOpened = false)
+            }
+          "
+          class="content"
+        >
           <div
             data-aos="fade-down"
             data-aos-delay="150"
@@ -33,14 +40,76 @@
           >
             Discover, collect and sell
           </div>
-          <div data-aos="zoom-in" data-aos-duration="1000" class="search-input">
-            <input
-              placeholder="Items, collections and creators"
-              class="search"
-              type="text"
-            />
+          <div class="search-container">
+            <div
+              data-aos="zoom-in"
+              data-aos-duration="1000"
+              class="search-wrapper"
+            >
+              <div v-if="searchResultsOpened" class="search-results">
+                <div v-if="searchResults.length >= 1">
+                  <nft-horizontal
+                    v-for="nft in searchResults"
+                    :key="nft.id"
+                    :nft="nft"
+                    class="nft-item"
+                  ></nft-horizontal>
+                </div>
+                <div v-else class="empty-placeholder">
+                  <img src="@/assets/img/magnifier-illustration.png" alt="" />
+                  <div class="placeholder-title">
+                    Sorry, we couldn’t find any matches for ‘<span>{{
+                      $refs.searchInput.value
+                    }}</span
+                    >’
+                  </div>
+                  <div class="placeholder-tooltip">
+                    Please try searching with another term
+                  </div>
+                </div>
+              </div>
+              <input
+                @click.self="searchOptionsOpened = false"
+                placeholder="Items, collections and creators"
+                ref="searchInput"
+                class="search-input"
+                type="text"
+              />
+
+              <div @click.self="toggleSearchOptions" class="category-select">
+                {{ activeSearchOption }}
+                <img
+                  @click.self="toggleSearchOptions"
+                  :class="searchOptionsOpened ? 'arrow-down' : 'arrow-up'"
+                  src="@/assets/img/arrow-down-icon.svg"
+                  alt=""
+                />
+                <ul v-if="searchOptionsOpened" class="categories">
+                  <li
+                    @click="
+                      {
+                        ;(activeSearchOption = 'Latest'), searchFilter()
+                      }
+                    "
+                    @click.self="searchOptionsOpened = false"
+                  >
+                    Latest
+                  </li>
+                  <li
+                    @click="
+                      {
+                        ;(activeSearchOption = 'Popular'), searchFilter()
+                      }
+                    "
+                    @click.self="searchOptionsOpened = false"
+                  >
+                    Popular
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
-          <div data-aos="fade-up" class="partners">
+          <div class="partners">
             <img
               class="partner-logo"
               src="@/assets/img/ritter_sport.svg"
@@ -102,20 +171,14 @@
         </div>
       </div>
 
-      <div class="nft-slider">
+      <div @click="searchResultsOpened = false" class="nft-slider">
         <div data-aos="fade-up" class="section-title">Latest live auctions</div>
         <div class="swiper-one-button-next">
           <img src="@/assets/img/arrow-next.svg" alt="" />
         </div>
-        <!-- <nft-item :nft='nft' class="nft-item"></nft-item> -->
         <div v-swiper:mySwiperOne="swiperOneOption">
           <div class="swiper-wrapper">
-            <div
-              @click="goToDetails(nft)"
-              class="swiper-slide"
-              v-for="nft in nftItems"
-              :key="nft.id"
-            >
+            <div class="swiper-slide" v-for="nft in latestNFTs" :key="nft.id">
               <nft-big
                 :nft="nft"
                 :nextSlide="emitNextSlide"
@@ -152,10 +215,18 @@
             </div>
           </div>
           <div data-aos="fade-left" class="images">
-            <kinesis-element type="translate" :strength="20">
+            <kinesis-element
+              :active="isDesktop"
+              type="translate"
+              :strength="20"
+            >
               <img class="pie" src="@/assets/img/pie.png" alt="" />
             </kinesis-element>
-            <kinesis-element type="translate" :strength="50">
+            <kinesis-element
+              :active="isDesktop"
+              type="translate"
+              :strength="50"
+            >
               <img class="bucket" src="@/assets/img/bucket.png" alt="" />
             </kinesis-element>
           </div>
@@ -171,7 +242,11 @@
             </div>
             <div v-swiper:mySwiperTwo="swiperTwoOption">
               <div class="swiper-wrapper">
-                <div class="swiper-slide" v-for="nft in nftItems" :key="nft.id">
+                <div
+                  class="swiper-slide"
+                  v-for="nft in latestNFTs"
+                  :key="nft.id"
+                >
                   <nft-vertical
                     :nft="nft"
                     :nextSlide="emitNextSlide"
@@ -195,8 +270,6 @@
               Mi est sit.
             </div>
           </div>
-          <!-- <button class="solid-btn get-started-btn">Get started</button> -->
-
           <button class="solid-btn get-started-btn">Get started</button>
 
           <button class="solid-btn get-started-btn-mobile">Get started</button>
@@ -229,7 +302,11 @@
       <div class="info-block-wrapper">
         <div class="info-block second">
           <div class="images">
-            <kinesis-element type="translate" :strength="40">
+            <kinesis-element
+              :active="isDesktop"
+              type="translate"
+              :strength="40"
+            >
               <img
                 class="paper-plane"
                 src="@/assets/img/paper-plane.png"
@@ -287,19 +364,15 @@
           Most popular live auctions
         </div>
         <div class="most-popular-content">
-          <div v-for="nft in popularNFT" :key="nft.id">
+          <div v-for="nft in popularNFTs" :key="nft.id">
             <nft-popular
-              @updateItem="updateItem(nft.id)"
-              @timer="timer(nft.id)"
-              @toggleFav="toggleFav(nft.id)"
-              @activateCountingState="activateCountingState(nft.id)"
               :nft="nft"
               :nextSlide="emitNextSlide"
               class="nft-item"
             ></nft-popular>
           </div>
         </div>
-        <button data-aos="fade-up" @click="loadNft()" class="linear-btn">
+        <button data-aos="fade-up" @click="loadNFTs()" class="linear-btn">
           Show me more
         </button>
       </div>
@@ -397,7 +470,6 @@
                 </button>
               </div>
             </div>
-            <!-- <> -->
             <div class="cloud">
               <div class="authors-cloud-img">
                 <kinesis-element type="translate" :strength="20">
@@ -458,51 +530,11 @@
         </div>
       </div>
       <square-tile class="square-title-row"></square-tile>
-      <!-- <footer>
-        <div class="footer-wrapper">
-          <div class="left">
-            <img class="logo" src="@/assets/img/logo.svg" alt="" />
-            <div class="useful-links">
-              <span class="link">Support</span>
-              <span class="link">Term of service</span>
-              <span class="link">License</span>
-            </div>
-          </div>
-          <div class="mid">
-            <ul class="menu">
-              <li>Auctions</li>
-              <li>Roadmap</li>
-              <li>Discover</li>
-              <li>Community</li>
-            </ul>
-            <button class="solid-btn">My account</button>
-            <div class="social-links">
-              <img src="@/assets/img/facebook-icon.svg" alt="" />
-              <img src="@/assets/img/linkedin-icon.svg" alt="" />
-              <img src="@/assets/img/github-icon.svg" alt="" />
-              <img src="@/assets/img/twitter-icon.svg" alt="" />
-              <img src="@/assets/img/instagram-icon.svg" alt="" />
-            </div>
-          </div>
-          <div class="right">
-            <span class="footer-info"
-              >Nibh volutpat, aliquam id sagittis elementum. Pellentesque
-              laoreet velit, sed egestas in. Id nam semper dolor tellus
-              vulputate eget turpis.
-            </span>
-            <div class="search-input">
-              <input placeholder="Newsletter" class="search" type="text" />
-            </div>
-          </div>
-        </div>
-      </footer> -->
     </kinesis-container>
   </div>
 </template>
 
 <script>
-import { del } from 'vue'
-import { uid } from 'uid'
 import { LoremIpsum } from 'lorem-ipsum'
 const lorem = new LoremIpsum()
 import { mapState, mapActions, mapMutations, mapGetters } from 'vuex'
@@ -510,7 +542,6 @@ import { mapState, mapActions, mapMutations, mapGetters } from 'vuex'
 export default {
   data() {
     return {
-      popularNFT: [],
       emitNextSlide: false,
       swiperOneOption: {
         loop: false,
@@ -527,102 +558,64 @@ export default {
         loop: false,
         slidesPerView: 'auto',
         centeredSlides: false,
-        // centeredSlidesBounds: true,
         spaceBetween: 24,
         simulateTouch: true,
         navigation: {
           nextEl: '.swiper-two-button-next',
         },
       },
+      searchOptionsOpened: false,
+      searchResultsOpened: false,
+      searchResults: [],
+      activeSearchOption: 'Latest',
+      isDesktop: null,
     }
   },
 
   computed: {
-    ...mapState(['nftItems']),
+    ...mapState(['latestNFTs', 'popularNFTs']),
     ...mapGetters(['sortedByPrice']),
   },
   methods: {
-    ...mapActions(['updateItem']),
-    ...mapMutations(['setCurrentItem']),
+    searchFilter() {
+      let searchInput = document.querySelector('.search-input')
+      let targetArray = []
+      if (this.activeSearchOption == 'Latest') {
+        targetArray = this.latestNFTs
+      } else if (this.activeSearchOption == 'Popular') {
+        targetArray = this.popularNFTs
+      }
 
-    goToDetails(nft) {
-      this.setCurrentItem(nft)
-      this.$nuxt.$options.router.push('/details')
-    },
-    refreshList(item) {
-      this.updateItem(item)
-    },
+      let userInput = searchInput.value
 
+      function filterFunc(nft) {
+        let isEqual = true
+        for (let i = 0; i < userInput.length; i++) {
+          if (userInput[i].toUpperCase() != nft.name[i].toUpperCase()) {
+            isEqual = false
+          }
+        }
+        return isEqual
+      }
+
+      if (userInput.length < 1) {
+        this.searchResults = targetArray
+      } else {
+        this.searchResults = targetArray.filter(filterFunc)
+      }
+    },
+    toggleSearchOptions() {
+      this.searchOptionsOpened = !this.searchOptionsOpened
+    },
     theFormat(number) {
       return number.toFixed(1)
     },
 
-    //Functions
-    toggleFav(id) {
-      let item = this.popularNFT.find((item) => {
-        return item.id == id
-      })
-      item.favorite = !item.favorite
-    },
-    timer(id) {
-      let item = this.popularNFT.find((item) => {
-        return item.id == id
-      })
-      item.timeTillTheEnd -= 1000
-    },
-    activateCountingState(id) {
-      let item = this.popularNFT.find((item) => {
-        return item.id == id
-      })
-      item.countingInAction = true
-      if (!item.timeTillTheEnd) {
-        item.timeTillTheEnd = item.expireTimestamp
-      }
-    },
-
-    //Download and updating new nft`s
-    async loadNft() {
-      for (let i = 0; i < 5; i++) {
-        let nft = {}
-        nft.id = uid()
-        nft.name = lorem.generateWords(4)
-        nft.price = 1 + Math.random() * 6
-        nft.favorite = false
-        nft.timeTillTheEnd = null
-        nft.countingInAction = false
-
-        // nft.image = `https://source.unsplash.com/collection/50332754/600x600/?sig=${Math.floor(
-        //   1 + Math.random() * 275
-        // )}`
-
-        nft.biddingUsers = Math.floor(12 + Math.random() * (150 + 1 - 12))
-        nft.expireTimestamp = 10000 * Math.floor(1 + Math.random() * 8)
-        // 60000
-
-        this.popularNFT.push(nft)
-      }
-    },
-    async updateItem(id) {
-      let updatingNft = this.popularNFT.find((item) => {
-        return item.id == id
-      })
-      updatingNft.name = lorem.generateWords(4)
-      updatingNft.price = 1 + Math.random() * 6
-      updatingNft.favorite = false
-      // updatingNft.image = `https://source.unsplash.com/collection/50332754/600x600/?sig=${Math.floor(
-      //   1 + Math.random() * 275
-      // )}`
-
-      updatingNft.biddingUsers = Math.floor(12 + Math.random() * (150 + 1 - 12))
-
-      updatingNft.timeTillTheEnd = updatingNft.expireTimestamp
-
-      updatingNft.expireTimestamp = 10000 * Math.floor(1 + Math.random() * 60)
+    loadNFTs() {
+      this.$store.dispatch('loadNFTs', { category: 'popularNFTs', qty: 5 })
     },
   },
   mounted() {
-    this.loadNft()
-
     let getStartedBlock = document.querySelector('.get-started')
     let getStartedBtn = document.querySelector('.get-started-btn')
     let hand = document.querySelector('.hand')
@@ -641,6 +634,37 @@ export default {
         getStartedBtn.classList.remove('visible')
       }
     }
+
+    let searchInput = document.querySelector('.search-input')
+    searchInput.onfocus = () => {
+      this.searchResultsOpened = true
+      this.searchFilter()
+    }
+
+    searchInput.oninput = () => {
+      this.searchFilter()
+    }
+
+    if (window.innerWidth < 1000) {
+      this.isDesktop = false
+    } else {
+      this.isDesktop = true
+    }
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth < 1000) {
+        this.isDesktop = false
+      } else {
+        this.isDesktop = true
+      }
+    })
+  },
+  unmounted() {
+    window.removeEventListener('resize', () => {
+      if (window.innerWidth < 1000) {
+        this.isDesktop = false
+      }
+    })
   },
 }
 </script>
@@ -764,35 +788,32 @@ export default {
       }
     }
 
-    .search-input {
-      position: relative;
+    .search-container {
+      width: 100%;
+      max-width: 540px;
       padding: 0 15px;
-      width: 100%;
-      max-width: 640px;
-
-      &::before {
-        content: url('@/assets/img/search-icon.svg');
-        position: absolute;
-        right: 40px;
-        top: 28px;
-        color: black;
-        width: 20px;
-        height: 20px;
-        @media (max-width: 500px) {
-          top: 22px;
-        }
-      }
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
-    .search {
+
+    .search-wrapper {
+      position: relative;
+      padding: 0 24px;
       width: 100%;
-      // max-width: 640px;
-      // height: 84px;
-      border-radius: 16px;
+
+      margin-bottom: 222px;
+
       background-color: #fff;
       box-shadow: 0px 25px 75px rgba(6, 7, 20, 0.1);
-      border: none;
-      padding: 30px 32px;
-      margin-bottom: 222px;
+      border-radius: 16px;
+
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+
       @media (max-width: 1400px) {
         margin-bottom: 160px;
       }
@@ -800,8 +821,91 @@ export default {
         margin-bottom: 110px;
       }
       @media (max-width: 500px) {
-        padding: 24px 26px;
         margin-bottom: 70px;
+      }
+    }
+    .search-results {
+      width: 100%;
+      position: absolute;
+      left: 0;
+      top: 100px;
+      background-color: #fff;
+      box-shadow: 0px 25px 75px rgba(6, 7, 20, 0.1);
+      border-radius: 16px;
+      height: 300px;
+      overflow: scroll;
+      padding: 28px 28px 10px 28px;
+    }
+
+    .category-select {
+      width: 30%;
+      position: relative;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 16px;
+
+      font-family: $inter;
+      font-weight: 400;
+      font-size: 16px;
+      user-select: none;
+
+      color: $textBlack;
+      letter-spacing: 0.2px;
+
+      cursor: pointer;
+
+      @media (max-width: 500px) {
+        width: 40%;
+      }
+      &::before {
+        display: block;
+        content: '';
+        width: 1px;
+        height: 28px;
+        background-color: #1f2a47;
+        opacity: 0.25;
+      }
+      .arrow-down {
+        margin-left: auto;
+        transform: scale(-1);
+      }
+      .arrow-up {
+        margin-left: auto;
+      }
+
+      .categories {
+        position: absolute;
+        left: 0;
+        bottom: -110px;
+        width: 120px;
+        border-radius: 12px;
+
+        background-color: #fff;
+        box-shadow: 0px 25px 75px rgba(6, 7, 20, 0.1);
+        padding: 22px 0 22px 32px;
+        cursor: auto;
+        li {
+          cursor: pointer;
+          &:hover {
+            color: $PurpleDark_100;
+          }
+        }
+        li:first-of-type {
+          margin-bottom: 18px;
+        }
+      }
+    }
+    .search-input {
+      width: 70%;
+      height: 84px;
+      border-radius: 16px;
+      background-color: #fff;
+
+      border: none;
+
+      @media (max-width: 500px) {
+        width: 60%;
       }
 
       &::placeholder {
@@ -889,6 +993,41 @@ export default {
     right: 260px;
     top: 750px;
   }
+
+  .empty-placeholder {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+    letter-spacing: 0.2px;
+    font-family: $inter;
+    img {
+      width: 135px;
+      height: auto;
+      margin: 20px 0 24px;
+      @media (max-width: 500px) {
+        margin: 8px 0 24px;
+      }
+    }
+
+    .placeholder-title {
+      font-weight: 400;
+      font-size: 18px;
+      margin-bottom: 12px;
+      span {
+        font-weight: 700;
+      }
+    }
+    .placeholder-tooltip {
+      font-weight: 400;
+      font-size: 16px;
+
+      color: $grey_50;
+
+      opacity: 0.8;
+    }
+  }
 }
 
 .nft-slider {
@@ -965,11 +1104,12 @@ export default {
   }
 
   .text-part {
+    width: 60%;
     max-width: 590px;
     padding: 105px 0;
     @media (max-width: 1200px) {
       padding: 0;
-      max-width: none;
+      width: 100%;
     }
     .info-label {
       font-family: $inter;
@@ -1053,11 +1193,11 @@ export default {
   }
 
   .images {
-    width: 50%;
+    width: 40%;
     height: 580px;
     position: relative;
     @media (max-width: 950px) {
-      width: 100%;
+      width: auto;
     }
     @media (max-width: 600px) {
       height: 320px;
@@ -1095,7 +1235,7 @@ export default {
     }
     .paper-plane {
       top: 30px;
-      left: 250px;
+      left: 170px;
       @media (max-width: 1500px) {
         left: 190px;
       }
@@ -1136,7 +1276,6 @@ export default {
   margin: 0 auto;
   gap: 24px;
   padding: 0 15px;
-  // min-height: 750px;
   @media (max-width: 1300px) {
     flex-wrap: wrap;
   }
@@ -1209,12 +1348,6 @@ export default {
 
     height: 710px;
     color: #fff;
-    // background: linear-gradient(
-    //     188.08deg,
-    //     rgba(255, 255, 255, 0.1) 0%,
-    //     rgba(255, 255, 255, 0) 93.79%
-    //   ),
-    //   #060714;
     background: #1c1d29;
     border-radius: 0px 20px 20px 20px;
     padding: 0px 40px 40px;
@@ -1252,7 +1385,6 @@ export default {
       @media (max-width: 1300px) {
         top: -100px;
         left: 600px;
-        // transform: rotate(50deg);
       }
       @media (max-width: 1200px) {
         top: -150px;
@@ -1476,7 +1608,6 @@ export default {
   padding: 0 15px;
   .container {
     position: relative;
-    // overflow: hidden;
     width: 100%;
     max-width: 1400px;
 
@@ -1488,7 +1619,6 @@ export default {
     }
 
     .pleat {
-      // width: 185px;
       position: absolute;
       top: 0;
       left: 0;
@@ -1506,7 +1636,6 @@ export default {
       );
       z-index: 2;
       position: absolute;
-      // width: 100%;
       top: 0;
       left: 900px;
       bottom: 0;
@@ -1636,244 +1765,6 @@ export default {
 .square-title-row {
   margin-bottom: 50px;
 }
-
-// footer {
-//   width: 100%;
-//   padding: 0 15px;
-//   margin-bottom: 100px;
-//   @media (max-width: 600px) {
-//     margin-bottom: 32px;
-//   }
-//   .footer-wrapper {
-//     margin: 0 auto;
-//     display: flex;
-//     width: 100%;
-
-//     border: 1px solid $grey_20;
-//     max-width: 1430px;
-//     border-radius: 20px;
-
-//     @media (max-width: 900px) {
-//       flex-direction: column;
-//     }
-
-//     .left,
-//     .mid,
-//     .right {
-//       padding: 48px 48px 40px 48px;
-//       @media (max-width: 1100px) {
-//         padding: 24px 24px 20px 24px;
-//       }
-//     }
-//     .left {
-//       height: 400px;
-//       width: 33.3%;
-//       border-right: 1px solid $grey_20;
-//       display: flex;
-//       flex-direction: column;
-//       justify-content: space-between;
-//       align-items: flex-start;
-//       @media (max-width: 1000px) {
-//         width: 25%;
-//       }
-//       @media (max-width: 900px) {
-//         width: 100%;
-//         flex-direction: row;
-//         border-right: 0px;
-//         border-bottom: 1px solid $grey_20;
-//         height: 100%;
-//         align-items: center;
-//       }
-//       @media (max-width: 600px) {
-//         flex-direction: column;
-//         gap: 12px;
-//       }
-//       .logo {
-//         width: 100%;
-//         max-width: 220px;
-//         display: block;
-//       }
-//       .useful-links {
-//         @media (max-width: 1300px) {
-//           display: flex;
-//           flex-direction: column;
-//           align-items: flex-start;
-//           justify-content: flex-start;
-//           gap: 24px;
-//           @media (max-width: 900px) {
-//             flex-direction: row;
-//           }
-//         }
-//         .link {
-//           font-family: $inter;
-//           font-weight: 400;
-//           font-size: 14px;
-//           line-height: 150%;
-//           text-align: center;
-//           letter-spacing: 0.2px;
-//           color: $grey_100;
-//           cursor: pointer;
-//         }
-//         .link:not(:first-of-type) {
-//           margin-left: 40px;
-//           @media (max-width: 1300px) {
-//             margin-left: 0;
-//           }
-//         }
-//       }
-//     }
-//     .mid {
-//       height: 400px;
-//       width: 33.3%;
-//       display: flex;
-//       flex-direction: column;
-//       justify-content: space-between;
-//       align-items: flex-start;
-//       @media (max-width: 1000px) {
-//         width: 25%;
-//       }
-//       @media (max-width: 900px) {
-//         width: 100%;
-//         height: 100%;
-//         flex-direction: row;
-//         align-items: center;
-//       }
-//       @media (max-width: 800px) {
-//         flex-direction: column;
-//         align-items: flex-start;
-//         gap: 16px;
-//       }
-//       @media (max-width: 600px) {
-//         align-items: center;
-//       }
-
-//       ul {
-//         @media (max-width: 900px) {
-//           display: flex;
-//           justify-content: center;
-//           gap: 24px;
-//           align-items: center;
-//         }
-//         @media (max-width: 600px) {
-//           flex-wrap: wrap;
-//           gap: 12px;
-//         }
-//         li {
-//           font-family: $sora;
-//           font-weight: 600;
-//           font-size: 16px;
-//           line-height: 20px;
-//           display: flex;
-//           align-items: center;
-//           text-align: center;
-//           letter-spacing: 0.2px;
-//           color: $textBlack;
-//           cursor: pointer;
-//         }
-//         li:not(:last-of-type) {
-//           margin-bottom: 16px;
-//           @media (max-width: 900px) {
-//             margin-bottom: 0px;
-//           }
-//         }
-//       }
-
-//       .solid-btn {
-//         @media (max-width: 860px) {
-//           display: none;
-//         }
-//       }
-
-//       .social-links img {
-//         cursor: pointer;
-//       }
-//       .social-links img:not(:first-of-type) {
-//         margin-left: 25px;
-//         @media (max-width: 1100px) {
-//           margin-left: 8px;
-//         }
-//       }
-//     }
-//     .right {
-//       height: 400px;
-//       width: 33.3%;
-//       border-left: 1px solid $grey_20;
-//       display: flex;
-//       flex-direction: column;
-//       justify-content: space-between;
-//       align-items: flex-start;
-//       @media (max-width: 1000px) {
-//         width: 50%;
-//       }
-//       @media (max-width: 900px) {
-//         width: 100%;
-//         height: 100%;
-//         gap: 18px;
-//         border-left: 0px;
-//         border-top: 1px solid $grey_20;
-//       }
-
-//       .footer-info {
-//         font-family: $inter;
-//         font-weight: 400;
-//         font-size: 16px;
-//         line-height: 150%;
-//         letter-spacing: 0.2px;
-//         color: $grey_100;
-//         @media (max-width: 900px) {
-//           max-width: 600px;
-//         }
-//       }
-
-//       .search-input {
-//         position: relative;
-//         // padding: 0 15px;
-//         width: 100%;
-//         max-width: 600px;
-
-//         &::before {
-//           content: 'Sign in';
-//           position: absolute;
-//           right: 40px;
-//           top: 16px;
-//           color: $PurpleDark_100;
-//           font-family: $sora;
-//           font-weight: 600;
-//           font-size: 16px;
-//           line-height: 20px;
-//           text-align: center;
-//           letter-spacing: 0.2px;
-//           cursor: pointer;
-//           @media (max-width: 400px) {
-//             right: 20px;
-//           }
-//         }
-//       }
-//       .search {
-//         width: 100%;
-//         border-radius: 16px;
-//         background-color: #fff;
-//         box-shadow: 0px 25px 75px rgba(6, 7, 20, 0.1);
-//         border: none;
-//         padding: 16px 24px 16px 32px;
-//         @media (max-width: 400px) {
-//           padding: 16px 10px 16px 16px;
-//         }
-
-//         &::placeholder {
-//           color: $grey_50;
-//           opacity: 0.7;
-//           @media (max-width: 500px) {
-//             font-size: 14px;
-//           }
-//         }
-//         &:focus {
-//           caret-color: $PurpleDark_100;
-//         }
-//       }
-//     }
-//   }
-// }
 
 .linear-btn {
   @include linearBtn;

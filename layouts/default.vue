@@ -118,7 +118,7 @@ video {
   font-size: 100%;
   vertical-align: baseline;
 }
-/* HTML5 display-role reset for older browsers */
+
 article,
 aside,
 details,
@@ -175,10 +175,9 @@ input[type='number']::-webkit-inner-spin-button {
 .mobile-menu-enter-active,
 .mobile-menu-leave-active {
   transition: all 0.5s;
-  // transform: translateX(0);
 }
-.mobile-menu-enter, .mobile-menu-leave-to /* .fade-leave-active до версии 2.1.8 */ {
+.mobile-menu-enter,
+.mobile-menu-leave-to {
   transform: translateX(-100%);
-  // opacity: 0;
 }
 </style>
