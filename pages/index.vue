@@ -545,7 +545,13 @@ export default {
       emitNextSlide: false,
       swiperOneOption: {
         observer: true,
-        loop: false,
+        autoplay: {
+          delay: 1,
+          disableOnInteraction: false,
+        },
+        loop: true,
+        loopedSlides: 7,
+        speed: 2000,
         slidesPerView: 'auto',
         centeredSlides: true,
         centeredSlidesBounds: true,
@@ -556,7 +562,6 @@ export default {
         },
       },
       swiperTwoOption: {
-        observer: true,
         loop: false,
         slidesPerView: 'auto',
         centeredSlides: false,
