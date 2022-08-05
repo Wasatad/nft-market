@@ -52,12 +52,12 @@ Users are able to:
 - [Vuex.js](https://vuex.vuejs.org/) - State manager
 - [SCSS](https://sass-lang.com/) - CSS pre-processor
 - [Nuxt.js](https://nuxtjs.org/) - SSR framework
-- [Chart.js] (https://www.chartjs.org/) - Charts
+- [Chart.js](https://www.chartjs.org/) - Charts
 - [Random User API](https://randomname.de) - API for fetching random people
 - [Unsplash API](https://unsplash.com/documentation) - API for fetching random photos
-- [AOS] (https://michalsnik.github.io/aos/) - Animate on scroll library
-- [Vue-Kinesis] (https://www.npmjs.com/package/vue-kinesis) - Interactive animations
-- [Vue-Awesome-Swiper] (https://www.npmjs.com/package/vue-awesome-swiper) - Slider library
+- [AOS](https://michalsnik.github.io/aos/) - Animate on scroll library
+- [Vue-Kinesis](https://www.npmjs.com/package/vue-kinesis) - Interactive animations
+- [Vue-Awesome-Swiper](https://www.npmjs.com/package/vue-awesome-swiper) - Slider library
 
 ## Author
 
