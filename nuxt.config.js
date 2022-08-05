@@ -43,6 +43,10 @@ export default {
     scss: ['@assets/styles/scss/*.scss'],
   },
 
+  axios: {
+    baseURL: process.env.BASE_URL || 'http://localhost:3000/',
+  },
+
   modules: ['@nuxtjs/axios', 'cookie-universal-nuxt'],
 
   build: {},
