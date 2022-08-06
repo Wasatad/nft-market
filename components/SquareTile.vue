@@ -1,24 +1,22 @@
 <template>
   <div>
-    <div class="tiles-row">
-      <div v-swiper:mySwiper="swiperOption">
-        <div class="swiper-wrapper tiles-slider">
-          <div class="swiper-slide" v-for="nft in smallTiles" :key="nft.id">
-            <div class="tile-wrapper">
-              <div class="nft-image-container">
-                <img
-                  class="nft-image"
-                  :src="require(`~/assets/img/bottom-tiles/${nft.image}`)"
-                  alt=""
-                />
-                <img
-                  class="blured-copy"
-                  :src="require(`~/assets/img/bottom-tiles/${nft.image}`)"
-                  alt=""
-                />
-              </div>
-              <div class="nft-price">{{ nft.price.toFixed(2) }} ETH</div>
+    <div class="tiles-row tiles-slider">
+      <div class="swiper-wrapper">
+        <div class="swiper-slide tile" v-for="nft in smallTiles" :key="nft.id">
+          <div class="tile-wrapper">
+            <div class="nft-image-container">
+              <img
+                class="nft-image"
+                :src="require(`~/assets/img/bottom-tiles/${nft.image}`)"
+                alt=""
+              />
+              <img
+                class="blured-copy"
+                :src="require(`~/assets/img/bottom-tiles/${nft.image}`)"
+                alt=""
+              />
             </div>
+            <div class="nft-price">{{ nft.price.toFixed(2) }} ETH</div>
           </div>
         </div>
       </div>
@@ -27,30 +25,13 @@
 </template>
 
 <script>
+import { Swiper, Autoplay } from 'swiper'
+import 'swiper/swiper-bundle.min.css'
+
 export default {
   data() {
     return {
       smallTiles: [],
-      swiperOption: {
-        observer: true,
-        autoplay: {
-          delay: 1,
-          disableOnInteraction: false,
-        },
-        loop: true,
-        loopedSlides: 20,
-        slidesPerView: 'auto',
-
-        centeredSlides: true,
-        centeredSlidesBounds: true,
-        spaceBetween: 24,
-
-        navigation: {
-          nextEl: '.swiper-one-button-next',
-        },
-
-        speed: 2000,
-      },
       async loadSmallTiles() {
         for (let i = 1; i < 21; i++) {
           let nft = {}
@@ -63,6 +44,23 @@ export default {
   },
   mounted() {
     this.loadSmallTiles()
+
+    Swiper.use([Autoplay])
+
+    const swiperTiles = new Swiper('.tiles-slider', {
+      modules: [Autoplay],
+      observer: true,
+      loop: false,
+      slidesPerView: 'auto',
+      centeredSlides: false,
+      spaceBetween: 24,
+      simulateTouch: true,
+      autoplay: {
+        delay: 1,
+        disableOnInteraction: false,
+      },
+      speed: 2000,
+    })
   },
 
   computed: {
@@ -96,15 +94,16 @@ export default {
 }
 .tiles-row {
   display: flex;
-  width: auto;
+  // width: auto;
+
+  .tile {
+    width: auto;
+  }
 
   img {
     border-radius: 20px;
   }
 
-  .swiper-slide {
-    width: auto;
-  }
   .blured-copy {
     position: absolute;
     z-index: -1;

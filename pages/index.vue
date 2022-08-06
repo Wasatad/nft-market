@@ -176,14 +176,10 @@
         <div class="swiper-one-button-next">
           <img src="@/assets/img/arrow-next.svg" alt="" />
         </div>
-        <div class="swiper-one" v-swiper:mySwiperOne="swiperOneOption">
+        <div class="swiper-one">
           <div class="swiper-wrapper">
             <div class="swiper-slide" v-for="nft in latestNFTs" :key="nft.id">
-              <nft-big
-                :nft="nft"
-                :nextSlide="emitNextSlide"
-                class="nft-item"
-              ></nft-big>
+              <nft-big :nft="nft" class="nft-item"></nft-big>
             </div>
           </div>
           <div class="swiper-pagination swiper-pagination-bullets"></div>
@@ -236,22 +232,19 @@
       <div class="offers">
         <div class="hottest">
           <div class="offers-title">Check out the<br />hottest Sale offers</div>
+
           <div class="slider">
             <div class="swiper-two-button-next">
               <img src="@/assets/img/arrow-next.svg" alt="" />
             </div>
-            <div v-swiper:mySwiperTwo="swiperTwoOption">
+            <div class="swiper-two">
               <div class="swiper-wrapper">
                 <div
                   class="swiper-slide"
                   v-for="nft in latestNFTs"
                   :key="nft.id"
                 >
-                  <nft-vertical
-                    :nft="nft"
-                    :nextSlide="emitNextSlide"
-                    class="nft-item"
-                  ></nft-vertical>
+                  <nft-vertical :nft="nft" class="nft-item"></nft-vertical>
                 </div>
               </div>
             </div>
@@ -279,22 +272,18 @@
           <div class="offers-title">Top NFT at a lower<br />price</div>
           <nft-horizontal
             :nft="sortedByPrice[0]"
-            :nextSlide="emitNextSlide"
             class="nft-item"
           ></nft-horizontal>
           <nft-horizontal
             :nft="sortedByPrice[1]"
-            :nextSlide="emitNextSlide"
             class="nft-item"
           ></nft-horizontal>
           <nft-horizontal
             :nft="sortedByPrice[2]"
-            :nextSlide="emitNextSlide"
             class="nft-item"
           ></nft-horizontal>
           <nft-horizontal
             :nft="sortedByPrice[3]"
-            :nextSlide="emitNextSlide"
             class="nft-item"
           ></nft-horizontal>
         </div>
@@ -365,11 +354,7 @@
         </div>
         <div class="most-popular-content">
           <div v-for="nft in popularNFTs" :key="nft.id">
-            <nft-popular
-              :nft="nft"
-              :nextSlide="emitNextSlide"
-              class="nft-item"
-            ></nft-popular>
+            <nft-popular :nft="nft" class="nft-item"></nft-popular>
           </div>
         </div>
         <button data-aos="fade-up" @click="loadNFTs()" class="linear-btn">
@@ -538,34 +523,12 @@
 import { LoremIpsum } from 'lorem-ipsum'
 const lorem = new LoremIpsum()
 import { mapState, mapGetters } from 'vuex'
+import { Swiper, Navigation } from 'swiper'
+import 'swiper/swiper-bundle.min.css'
 
 export default {
   data() {
     return {
-      emitNextSlide: false,
-      swiperOneOption: {
-        observer: true,
-        preloadImages: false,
-        loop: false,
-        slidesPerView: 'auto',
-        centeredSlides: true,
-        centeredSlidesBounds: true,
-        spaceBetween: 70,
-        simulateTouch: true,
-        navigation: {
-          nextEl: '.swiper-one-button-next',
-        },
-      },
-      swiperTwoOption: {
-        loop: false,
-        slidesPerView: 'auto',
-        centeredSlides: false,
-        spaceBetween: 24,
-        simulateTouch: true,
-        navigation: {
-          nextEl: '.swiper-two-button-next',
-        },
-      },
       searchOptionsOpened: false,
       searchResultsOpened: false,
       searchResults: [],
@@ -618,14 +581,32 @@ export default {
     },
   },
   mounted() {
-    // let swiper = document.querySelector('.swiper-one').swiper
-    // console.log(44344)
-    // setTimeout(() => {
-    //   swiper.init()
-    // }, 7000)
-    // setTimeout(() => {
-    //   swiper.slideNext()
-    // }, 3000)
+    Swiper.use([Navigation])
+
+    const swiperOne = new Swiper('.swiper-one', {
+      modules: [Navigation],
+      slidesPerView: 'auto',
+      centeredSlides: true,
+      centeredSlidesBounds: true,
+      spaceBetween: 70,
+      simulateTouch: true,
+      navigation: {
+        nextEl: '.swiper-one-button-next',
+      },
+    })
+
+    const swiperTwo = new Swiper('.swiper-two', {
+      modules: [Navigation],
+      loop: false,
+      slidesPerView: 'auto',
+      centeredSlides: false,
+      spaceBetween: 24,
+      simulateTouch: true,
+      navigation: {
+        nextEl: '.swiper-two-button-next',
+      },
+    })
+
     let getStartedBlock = document.querySelector('.get-started')
     let getStartedBtn = document.querySelector('.get-started-btn')
     let hand = document.querySelector('.hand')
@@ -1309,6 +1290,7 @@ export default {
     border: 1px solid $grey_20;
     border-radius: 20px;
     padding: 45px 40px 40px 40px;
+    overflow: hidden;
 
     @media (max-width: 1300px) {
       width: 48%;
