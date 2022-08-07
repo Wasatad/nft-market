@@ -402,7 +402,6 @@ const store = () => {
           JSON.stringify(context.state.currentNFT)
         )
 
-        window.scrollTo(top)
         this.$router.push('/details')
       },
 

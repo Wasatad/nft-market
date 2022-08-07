@@ -89,6 +89,7 @@ export default {
     },
     goToDetails(nft) {
       this.setCurrentItem(nft)
+      window.scrollTo(top)
     },
     async updateCounter() {
       await this.updateNFT(this.nft.id, 'otherNFTs')
