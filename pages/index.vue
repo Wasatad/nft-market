@@ -1025,6 +1025,7 @@ export default {
   width: 100%;
   margin-bottom: 100px;
   position: relative;
+  overflow: hidden;
 
   .swiper-container {
     padding: 0 15px;
@@ -1755,7 +1756,11 @@ export default {
 }
 
 .square-title-row {
-  margin-bottom: 50px;
+  margin-bottom: 24px;
+  padding-bottom: 40px;
+  width: auto;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .linear-btn {

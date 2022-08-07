@@ -94,7 +94,8 @@ export default {
 }
 .tiles-row {
   display: flex;
-  // width: auto;
+  width: auto;
+  max-width: 100%;
 
   .tile {
     width: auto;
