@@ -60,7 +60,8 @@ export default {
 <style scoped lang="scss">
 .message-wrapper {
   position: fixed;
-  width: 380px;
+  max-width: 380px;
+  width: calc(100% - 30px);
   z-index: 1001;
   top: 0;
   left: 50%;
