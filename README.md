@@ -42,7 +42,7 @@ Users are able to:
 
 ### Link
 
-- Live Site URL: [Demo](https://audiophile-shop.herokuapp.com/)
+- Live Site URL: [Demo](https://nft-market-website.herokuapp.com/)
 
 ## My process
 
