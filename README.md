@@ -43,6 +43,8 @@ Users are able to:
 ### Link
 
 - Live Site URL: [Demo](https://nft-market-website.herokuapp.com/)
+- Walk-through Video: [Watch](https://www.youtube.com/watch?v=oO0irbe5laE)
+
 
 ## My process
 
