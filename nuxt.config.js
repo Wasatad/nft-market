@@ -2,6 +2,7 @@ export default {
   ssr: true,
   target: 'server',
    server: {
+    host: '0.0.0.0',
     port: 8000
   },
 
