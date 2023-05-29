@@ -42,7 +42,7 @@ Users are able to:
 
 ### Link
 
-- Live Site URL: [Demo](https://nft-market-website.herokuapp.com/)
+- Live Site URL: [Demo](http://80.87.106.181:8000/)
 - Walk-through Video: [Watch](https://www.youtube.com/watch?v=oO0irbe5laE)
 
 
