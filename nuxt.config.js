@@ -1,6 +1,9 @@
 export default {
   ssr: true,
   target: 'server',
+   server: {
+    host: '1'
+  },
 
   head: {
     title: 'NFT Market',
